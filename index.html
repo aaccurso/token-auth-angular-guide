@@ -11,5 +11,14 @@
     <script src="scripts/myApp.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body ng-app="myApp">
+    <div ng-controller="LoginController">
+      <h1>Hello Angular!</h1>
+      <p>{{message}}</p>
+      <form ng-submit="submit()">
+        <input type="text" name="user" ng-model="user" placeholder="User" />
+        <input type="password" name="password" ng-model="password" placeholder="Password" />
+        <input type="submit" name="submit" value="Login" />
+      </form>
+    </div>
   </body>
 </html>
