@@ -9,7 +9,13 @@ function LoginController($scope, $http) {
       user: $scope.user,
       password: $scope.password
     })
-    .success(function (userData) {
+    .success(function (tokenWrapper) {
+      localStorage.token = tokenWrapper.token;
+
+      // Token is XXXX.YYYYYY.ZZZ Y: Encoded Profile
+      var encodedProfile = tokenWrapper.token.split('.')[1];
+
+      var userData = JSON.parse(url_base64_decode(encodedProfile));
       $scope.message = 'Welcome ' + userData.firstName + ' ' +
         userData.lastName + '!';
     })

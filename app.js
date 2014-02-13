@@ -11,6 +11,8 @@ app.use(express.json({strict: true}));
 
 app.use('/', express.static('/' + __dirname));
 
+app.use('/api', expressJwt({secret: secret}));
+
 app.post('/authenticate', function (req, res) {
   var user = req.body;
   var profile = {
@@ -25,7 +27,8 @@ app.post('/authenticate', function (req, res) {
     return;
   }
 
-  res.send(200, profile);
+  var token = jwt.sign(profile, secret, {expiresInMinutes: 60 * 5});
+  res.send(200, {token: token});
 });
 
 app.listen(1337);
