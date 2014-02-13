@@ -6,12 +6,16 @@ var app = express();
 
 var secret = 'shhh secret';
 
-app.use(express.logger());
 app.use(express.json({strict: true}));
 
 app.use('/', express.static('/' + __dirname));
 
 app.use('/api', expressJwt({secret: secret}));
+
+app.get('/api/restricted', function (req, res) {
+  console.log('user ' + req.user.firstName + ' ' + req.user.lastName + ' is calling /api/restricted');
+  res.send(200, {foo: 'bar'});
+});
 
 app.post('/authenticate', function (req, res) {
   var user = req.body;

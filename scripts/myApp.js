@@ -1,5 +1,7 @@
 var myApp = angular.module('myApp', []);
 
+var savedToken;
+
 function LoginController($scope, $http) {
   $scope.user = '';
   $scope.password = '';
@@ -10,7 +12,7 @@ function LoginController($scope, $http) {
       password: $scope.password
     })
     .success(function (tokenWrapper) {
-      localStorage.token = tokenWrapper.token;
+      savedToken = tokenWrapper.token;
 
       // Token is XXXX.YYYYYY.ZZZ Y: Encoded Profile
       var encodedProfile = tokenWrapper.token.split('.')[1];
@@ -22,5 +24,15 @@ function LoginController($scope, $http) {
     .error(function (error) {
       alert(error);
     });
+  };
+
+  $scope.restricted = function () {
+    $http({url: '/api/restricted', method: 'get', headers: { Authorization: 'Bearer ' + savedToken}})
+      .success(function (data) {
+        $scope.message = 'Restricted data was: ' + data.foo;
+      })
+      .error(function (error) {
+        alert(error);
+      });
   };
 }
