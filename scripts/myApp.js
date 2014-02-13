@@ -1,7 +1,5 @@
 var myApp = angular.module('myApp', []);
 
-var savedToken;
-
 function LoginController($scope, $http) {
   $scope.user = '';
   $scope.password = '';
@@ -12,7 +10,7 @@ function LoginController($scope, $http) {
       password: $scope.password
     })
     .success(function (tokenWrapper) {
-      savedToken = tokenWrapper.token;
+      localStorage.token = tokenWrapper.token;
 
       // Token is XXXX.YYYYYY.ZZZ Y: Encoded Profile
       var encodedProfile = tokenWrapper.token.split('.')[1];
@@ -27,7 +25,7 @@ function LoginController($scope, $http) {
   };
 
   $scope.restricted = function () {
-    $http({url: '/api/restricted', method: 'get', headers: { Authorization: 'Bearer ' + savedToken}})
+    $http({url: '/api/restricted', method: 'get'})
       .success(function (data) {
         $scope.message = 'Restricted data was: ' + data.foo;
       })
@@ -35,4 +33,35 @@ function LoginController($scope, $http) {
         alert(error);
       });
   };
+
+  $scope.logout = function () {
+    $scope.message = '';
+    $scope.user = '';
+    $scope.password = '';
+    delete localStorage.token;
+  };
 }
+
+myApp.factory('authInterceptor', function ($rootScope, $q) {
+  return {
+    request: function (config) {
+      config.headers = config.headers || {};
+      if (localStorage.token) {
+        config.headers.Authorization = 'Bearer ' + localStorage.token;
+      }
+      return config;
+    },
+    response: function (response) {
+      if (response.status === 401) {
+        // TODO Do something smarter
+        alert('User not authenticated');
+      }
+      return response || $q.when(response);
+    }
+  };
+});
+
+myApp.config(function ($httpProvider) {
+  $httpProvider.interceptors.push('authInterceptor');
+});
+
